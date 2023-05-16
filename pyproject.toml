@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "juntando-os-dados-catolicos"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "juntando_os_dados_catolicos"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.29.0"
+beautifulsoup4 = "^4.12.2"
+streamlit = "^1.22.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
