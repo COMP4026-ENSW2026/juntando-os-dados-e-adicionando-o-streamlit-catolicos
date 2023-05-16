@@ -16,6 +16,8 @@ def veneza():
     imoveis = soup.find_all('div', class_='list__hover')
     obj_list = []
 
+    qtd = len(imoveis)
+
     for i in imoveis:
         endereco = i.find('p', class_='list__address').text.strip()
         condominio = i.find('p', class_='list__building').text.strip()
