@@ -12,7 +12,7 @@ progress_text = "Operation in progress. Please wait."
 percent_complete = 0
 my_bar = st.progress(0, text=progress_text)
 
-def getInformation(page, soup, more_info, progress_count):
+def getInformation(page, soup, more_info):
   obj = []
   for tag in more_info:
     new_page = requests.get(tag['href'])
@@ -69,7 +69,6 @@ def getInformation(page, soup, more_info, progress_count):
       price = -1
 
     obj.append({ "url": tag['href'], "price": price, "description": text, "bedrooms": bedrooms, "area": area, "parking": parking })
-  progress_count +=1
   return obj  
 
 all_pages = []
@@ -77,7 +76,7 @@ url = "https://www.imobiliariaperez.com.br/alugar/apartamento-para-alugar"
 page = requests.get(url)
 soup = BeautifulSoup(page.content, "html.parser")
 more_info = soup.find_all("a", class_="slide-home-btn")
-all_pages.append(getInformation(page, soup, more_info, progress_count))
+all_pages.append(getInformation(page, soup, more_info))
 next_pages = soup.find_all("a", class_="page-link")[2:]
 count = len(soup.find_all("section", class_="list-property-section")) * int(next_pages[-2].text)
 aux = next_pages[0]
@@ -92,10 +91,11 @@ for li in next_pages:
   next_soup = BeautifulSoup(next_page.content, "html.parser")
   next_info = next_soup.find_all("a", class_="slide-home-btn")
 
-  all_pages.append(getInformation(next_page, next_soup, next_info, progress_count))
+  all_pages.append(getInformation(next_page, next_soup, next_info))
+  progress_count += 1
   i += 1
 
-percent_complete = int(progress_count / int(count) * 100) + 7
+percent_complete = int(round(count / len(next_pages)) / int(count) * 100)
 my_bar.progress(percent_complete, text=progress_text)
 if percent_complete == 100:
     st.success('Imóveis coletados!')
