@@ -28,7 +28,7 @@ st.markdown("## Progresso da Coleta")
 
 final_realties = pd.DataFrame()
 try:
-  with open(adapt.TO_FILE, 'r', encoding='utf-8') as file:
+  with open(adapt.TO_FILE, 'r') as file:
     final_realties = pd.DataFrame(json.load(file))
   st.markdown('Dados já coletados, pulando coleta...')
   st.markdown('> Para coletar novamente, exclua o arquivo **veneza_final.json**')
