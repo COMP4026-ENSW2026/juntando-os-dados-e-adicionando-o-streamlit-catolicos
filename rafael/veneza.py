@@ -52,6 +52,8 @@ def get_realty_info(realty_url):
 
   for key, val in info['details'].items():
     info['details'][key] = val.text.strip() if val else '0'
+  # string original tem byte que causa erro no json
+  info['details'].update({'area': info['details']['area'].split('m2', 1)[0] + 'm2'})
 
   prices_container = content_rem.find('div', class_='card__total')
   price_names = prices_container.find_all('p', class_='card__total-description')
@@ -88,11 +90,11 @@ def scrape(realty_paths=None):
     return
 
   with open(TARGET_FILE, 'w') as file:
-    json.dump(realties, file, indent=2, ensure_ascii=False)
+    json.dump(realties, file, indent=2)
   print('Coleta finalizada! Dados salvos em', TARGET_FILE)
 
 
 __all__ = ['scrape', 'get_all_realty_paths']
 
 if __name__ == '__main__':
-  scrape()
+  [_ for _ in scrape()]
