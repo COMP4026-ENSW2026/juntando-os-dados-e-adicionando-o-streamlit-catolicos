@@ -3,6 +3,11 @@ import rafael.veneza as veneza
 import rafael.adapt as adapt
 import json
 import pandas as pd
+import locale
+
+
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
 
 def get_realties():
   progress_bar = st.progress(0, f'Iniciando coleta de imóveis...')
@@ -22,8 +27,6 @@ st.markdown('_Script do Rafael_')
 st.markdown("## Progresso da Coleta")
 
 final_realties = pd.DataFrame()
-# try to open ../rafael/veneza_final.json
-# if it doesn't exist, scrape the website
 try:
   with open(adapt.TO_FILE, 'r', encoding='utf-8') as file:
     final_realties = pd.DataFrame(json.load(file))
@@ -39,7 +42,11 @@ st.markdown(f'- Dados coletados salvos em: **{veneza.TARGET_FILE}**')
 st.markdown(f'- Dados padronizados salvos em: **{adapt.TO_FILE}**')
 
 st.markdown('## Imóveis:')
+
 final_realties.columns = ['URL', 'Descrição', 'Área', 'Vagas', 'Quartos', 'Preço']
-final_realties['Área'] = final_realties['Área'].map(lambda x: f'{x} m²')
-final_realties['Preço'] = final_realties['Preço'].map(lambda x: f'R$ {x:,.2f}')
-st.dataframe(final_realties)
+styles = {
+  'Área': lambda x: f'{x:.0f}m²' if x > 0 else '-',
+  'Preço': lambda x: locale.currency(x, grouping=True)
+}
+st.dataframe(final_realties.style.format(styles))
+
