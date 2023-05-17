@@ -1,8 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-
-import requests
-from bs4 import BeautifulSoup
 import streamlit as st
 
 def veneza():
@@ -15,6 +12,8 @@ def veneza():
     soup = BeautifulSoup(page.content, "html.parser")
     imoveis = soup.find_all('div', class_='list__hover')
     obj_list = []
+
+    qtd = len(imoveis)
 
     for i in imoveis:
         endereco = i.find('p', class_='list__address').text.strip()

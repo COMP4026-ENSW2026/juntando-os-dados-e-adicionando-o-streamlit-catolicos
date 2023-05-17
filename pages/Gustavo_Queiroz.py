@@ -3,12 +3,13 @@ from bs4 import BeautifulSoup
 import json
 import re
 import streamlit as st
+import pandas as pd
+
 st.markdown("# Gustavo Queiroz")
 st.sidebar.markdown("# Importando dados Imobiliária Perez")
 progress_count = 0
 
 progress_text = "Operation in progress. Please wait."
-# percent_complete = 68
 percent_complete = 0
 my_bar = st.progress(0, text=progress_text)
 
@@ -84,7 +85,10 @@ i = 0
 
 for li in next_pages:
 
-  if(li['href'] == 'javascript:;' or li.get('aria-label') == 'pagination.next'):
+  if(li['href'] == 'javascript:;'):
+    continue
+  
+  if(li.get('aria-label') == 'pagination.next'):
     break
 
   next_page = requests.get(li['href'])
@@ -95,12 +99,14 @@ for li in next_pages:
   progress_count += 1
   i += 1
 
-percent_complete = int(round(count / len(next_pages)) / int(count) * 100)
-my_bar.progress(percent_complete, text=progress_text)
-if percent_complete == 100:
-    st.success('Imóveis coletados!')
+  percent_complete = int((round(count / len(next_pages)-1)*i) / int(count) * 100)
+  my_bar.progress(percent_complete, text=progress_text)
+
+my_bar.progress(100, text=progress_text)
+st.success('Imóveis coletados!')
 
 json_file_path = './queiroz/objetos.json'
+
 
 with open(json_file_path, 'w') as json_file:
     # Create a list to store the objects
@@ -110,6 +116,9 @@ with open(json_file_path, 'w') as json_file:
     for page in all_pages:
         for obj in page:
             objects_list.append(obj)
-
+  
+    df = pd.DataFrame(objects_list)
+    df.columns = ['link', 'preço', 'descrição', 'quartos', 'área', 'vagas']
+    st.dataframe(df)
     # Write the data to the JSON file
     json.dump(objects_list, json_file, indent=2, ensure_ascii=False)

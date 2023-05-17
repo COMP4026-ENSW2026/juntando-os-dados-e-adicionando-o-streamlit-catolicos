@@ -64,17 +64,22 @@ def get_realty_info(realty_url):
 
   return info
 
-
-def scrape():
-  print('Iniciando coleta de dados da Veneza...')
+def get_all_realty_paths():
   page_links = [f'{BASE_RENT_URL}-pagina-{page}' for page in range(1, get_total_pages() + 1)]
 
-  realty_paths = get_realty_paths(page_links)
-  print(len(realty_paths))
+  return get_realty_paths(page_links)
+
+
+def scrape(realty_paths=None):
+  print('Iniciando coleta de dados da Veneza...')
+
+  realty_paths = get_all_realty_paths() if realty_paths is None else realty_paths
   realties = []
   for p in realty_paths:
     try:
-      realties.append(get_realty_info(BASE_URL + p))
+      realty = get_realty_info(BASE_URL + p)
+      realties.append(realty)
+      yield realty
     except Exception:
       print('\tProblema na coleta do imóvel:', BASE_URL + p)
       print('\tPulando para o próximo...')
@@ -87,7 +92,7 @@ def scrape():
   print('Coleta finalizada! Dados salvos em', TARGET_FILE)
 
 
-__all__ = ['scrape']
+__all__ = ['scrape', 'get_all_realty_paths']
 
 if __name__ == '__main__':
   scrape()

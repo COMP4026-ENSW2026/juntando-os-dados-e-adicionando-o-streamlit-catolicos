@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import streamlit as st
 import subprocess
+import pandas as pd
 
 st.markdown("# Gustavo Soares")
 st.sidebar.markdown("# Importando dados Raul Fulgencio")
@@ -17,6 +18,7 @@ bedrooms_list = []
 area_list = []
 parking_list = []
 contador = 0
+loop = 0
 
 #get number of posts from the website
 
@@ -25,7 +27,7 @@ soup = BeautifulSoup(response.text, 'html.parser')
 quantidade = soup.find('h1', class_='titulo_res_busca')
 # print(quantidade.text.split()[0])
 
-progress_text = "Operation in progress. Please wait."
+progress_text = "Coletando imóveis... Aguarde!"
 # percent_complete = 68
 percent_complete = 0
 my_bar = st.progress(0, text=progress_text)
@@ -44,8 +46,6 @@ for page in range(1, 4):
 
         link_response = requests.get('https://www.raulfulgencio.com.br/' + link, timeout=15)
         link_soup = BeautifulSoup(link_response.text, 'html.parser')
-
-        # percent_complete += 1
         
         try :
             prices = link_soup.find_all('div', class_='col-lg-6 col-sm-6 text-right')[-1]
@@ -117,9 +117,49 @@ for page in range(1, 4):
         parking_list.append(parking)
 
         contador += 1
-    
-    percent_complete = int(contador / int(quantidade.text.split()[0]) * 100) + 7
+    loop += 1
+    percent_complete = int(contador / int(quantidade.text.split()[0]) * 100)
+
+    if loop == 3 and percent_complete == 100:
+        pass
+    elif loop == 3 and percent_complete > 100:
+        while percent_complete > 100:
+            percent_complete -= 1
+        pass
+    elif loop == 3 and percent_complete < 100:
+        while percent_complete < 100:
+            percent_complete += 1
+        pass
+    else:
+        pass
+
     print(percent_complete)
     my_bar.progress(percent_complete, text=progress_text)
+
     if percent_complete == 100:
         st.success('Imóveis coletados!')
+
+dict_list = []
+
+for i in range(0, len(url_list)):
+
+    dict = {
+        'url': url_list[i],
+        'price': float(price_list[i]),
+        'description': description_list[i],
+        'bedrooms': bedrooms_list[i],
+        'area': int(float(area_list[i])),
+        'parking': int(parking_list[i])
+    }
+
+    dict_list.append(dict)
+
+# path = "soares/Imobi.json"
+
+# with open(path, 'w', encoding='utf8') as file:
+#     json.dump(dict_list, file, indent=2, ensure_ascii=False)
+
+st.markdown("### Imóveis coletados:")
+df = pd.DataFrame(dict_list)
+df.columns = ['Link', 'Preço', 'Descrição', 'Quartos', 'Área', 'Vagas']
+st.dataframe(df)

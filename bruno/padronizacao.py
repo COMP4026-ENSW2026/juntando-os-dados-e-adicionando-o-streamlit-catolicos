@@ -1,5 +1,7 @@
 import json
 from dados_veneza import veneza
+import pandas as pd
+import streamlit as st
 
 def padroniza(dados):
     objetos = []
@@ -17,6 +19,9 @@ def padroniza(dados):
 
     with open('dados.json', 'w') as json_file:
         json.dump(objetos, json_file, indent=2, ensure_ascii=False)
+    
+    df = pd.DataFrame(objetos)
+    st.dataframe(df)
 
     return json_object
 

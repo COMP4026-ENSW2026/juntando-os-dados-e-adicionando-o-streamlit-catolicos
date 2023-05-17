@@ -1,7 +1,11 @@
 import json
-from veneza import scrape
+from .veneza import scrape
 from os import listdir, path
 from sys import argv
+
+
+FROM_FILE = path.join(path.dirname(__file__), 'veneza.json')
+TO_FILE = path.join(path.dirname(__file__), 'veneza_final.json')
 
 
 def cast(val, type_=int, default=None):
@@ -29,23 +33,26 @@ def adapt_realty(realty):
 
   return new_realty
 
-
-if __name__ == '__main__':
-  FROM_FILE = path.join(path.dirname(__file__), 'veneza.json')
-  TO_FILE = path.join(path.dirname(__file__), 'veneza_final.json')
-
+def adapt_realties():
   if any([
     not 'veneza.json' in listdir(),
     len(argv) > 1 and '--scrape' in argv
   ]):
     scrape()
 
-  with open(FROM_FILE, 'r', encoding='utf-8') as file:
+  with open(FROM_FILE, 'r') as file:
     realties = json.load(file)
 
   adapted_realties = [adapt_realty(realty) for realty in realties]
 
   with open(TO_FILE, 'w') as file:
     json.dump(adapted_realties, file, indent=2, ensure_ascii=False)
+
+  return adapted_realties
+
+__all__ = ['adapt_realties']
+
+if __name__ == '__main__':
+  adapted_realties = adapt_realties()
   print('Dados padronizados salvos em', TO_FILE)
   print('Total de imóveis:', len(adapted_realties))

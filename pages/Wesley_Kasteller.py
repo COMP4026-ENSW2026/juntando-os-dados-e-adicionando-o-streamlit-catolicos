@@ -1,15 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
-import streamlit as st
 import json
+import streamlit as st
+import pandas as pd
 
 st.markdown("# Wesley Kasteller")
 st.sidebar.markdown("# Importando dados Imobiliaria Atual")
+contador = 0
 
 lista_objetos = []
 URL = 'https://www.imobiliariaatual.com.br/imoveis/apartamento-locacao'
 page = requests.get(URL)
-contador = 0
 
 old_soup = BeautifulSoup(page.content, "html.parser")
 string = old_soup.find("div", class_="list__counter").text.replace(" ", "")
@@ -29,6 +30,10 @@ while True:
   total_articles += len(articles)
 
   curr_page += 1
+
+print(total_articles)
+
+curr_page = int(''.join(filter(str.isdigit, string.split()[0])))
 
 progress_text = "Operation in progress. Please wait."
 percent_complete = 0
@@ -81,15 +86,17 @@ while True:
     contador += 1
 
   curr_page += 1
-  
-  
-  percent_complete = int(contador / total_articles * 100) + 7
+  percent_complete = int(contador / total_articles * 100) + 14
   my_bar.progress(percent_complete, text=progress_text)
-  if percent_complete == 100:
-    st.success('Imóveis coletados!')
 
-json_file_path = 'objetos.json'
+percent_complete = 100
+my_bar.progress(percent_complete, text=progress_text)
+st.success('Imóveis coletados!')
+st.markdown('')
 
+json_file_path = './wesley/objetos.json'
+
+df = pd.DataFrame(lista_objetos)
+st.dataframe(df)
 with open(json_file_path, 'w') as json_file:
-
   json.dump(lista_objetos, json_file, indent=2, ensure_ascii=False)

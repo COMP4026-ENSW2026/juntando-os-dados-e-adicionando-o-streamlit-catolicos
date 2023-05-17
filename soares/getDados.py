@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import streamlit as st
+
 url_template = 'https://www.raulfulgencio.com.br/alugar/Londrina/Apartamento?pag={}'
 
 # dict_list = []
@@ -10,6 +12,19 @@ description_list = []
 bedrooms_list = []
 area_list = []
 parking_list = []
+contador = 0
+loop = 0
+
+#get number of posts from the website
+
+response = requests.get(url_template.format(1))
+soup = BeautifulSoup(response.text, 'html.parser')
+quantidade = soup.find('h1', class_='titulo_res_busca')
+# print(quantidade.text.split()[0])
+
+progress_text = "Coletando Imóveis. Por favor aguarde."
+percent_complete = 0
+my_bar = st.progress(0, text=progress_text)
 
 for page in range(1, 4):
     url = url_template.format(page)
@@ -97,4 +112,26 @@ for page in range(1, 4):
         area_list.append(area_sem_ponto)
         parking_list.append(parking)
 
-        
+        contador += 1
+    loop += 1
+    
+    percent_complete = int(contador / int(quantidade.text.split()[0]) * 100)
+
+    if loop == 3 and percent_complete == 100:
+        pass
+    elif loop == 3 and percent_complete > 100:
+        while percent_complete > 100:
+            percent_complete -= 1
+        pass
+    elif loop == 3 and percent_complete < 100:
+        while percent_complete < 100:
+            percent_complete += 1
+        pass
+    else:
+        pass
+
+    print(percent_complete)
+    my_bar.progress(percent_complete , text=progress_text)
+    
+    if percent_complete == 100:
+        st.success('Imóveis coletados!')
